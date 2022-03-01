@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+
+	<link rel="stylesheet"
+	      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+
+	<div class="container" style="margin-top: 100px">
+		<div class="row">
+			<div class="col-md-5 mt-5 pt-5 mb-5"  style="margin-left: 300px">
+				<div class="panel panel-primary">
+			
+					<div class="panel-heading">
+						<div class="panel-title">Register New User</div>
+					</div>
+			
+					<div style="padding-top: 30px" class="panel-body">
+			
+						<!-- Registration Form -->
+						<form th:action="@{/register/processRegistration}"
+						      th:object="${player}" method="POST"
+						      class="form-horizontal">
+			
+							<!-- Place for messages: error, alert etc ... -->
+							<div class="form-group">
+								<div class="col-xs-15">
+									<div>
+			
+										<!-- Check for registration error -->
+										<div th:if="${regError}" class="alert alert-danger col-xs-offset-1 col-xs-10">
+											<span th:text="${regError}"></span>
+										</div>
+			
+									</div>
+								</div>
+							</div>
+			
+							<!-- User name -->
+							<div style="margin-bottom: 25px" class="input-group">
+								<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+								<input type="text" th:field="*{nickname}" placeholder="nickname" class="form-control" />
+							</div>
+			
+							
+							<div style="margin-bottom: 25px" class="input-group">
+								<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+								<input type="password" th:field="*{password}" placeholder="password" class="form-control" th:errorclass="fieldError" />
+							</div>
+							
+							<!-- Register Button -->
+							<div style="margin-top: 10px" class="form-group">
+								<div class="col-sm-6 controls">
+									<button type="submit" class="btn btn-primary">Register</button>
+								</div>
+							</div>
+			
+						</form>
+			
+					</div>
+			
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>
+</body>
+</html>

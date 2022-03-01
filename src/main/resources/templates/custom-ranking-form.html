@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Custom Ranking Form</title>
+
+	<link rel="stylesheet"
+	      type="text/css"
+	      href="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.css" />
+	<link th:rel="stylesheet" th:href="@{webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+		<div class="container">
+			<a class="navbar-brand" th:href="'#'" th:text="'Custom ranking form'"></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+			        aria-controls="navbarResponsive"
+			        aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarResponsive">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active">
+						<a class="nav-link" th:text="'Home'" th:href="@{/ranking}">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+					
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink"
+						   data-bs-toggle="dropdown" aria-expanded="false">
+							Game Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+							<li th:each="egame : ${games}">
+								<a class="dropdown-item" th:text="${egame.name} + ' ranking'"
+								   th:href="@{/ranking(game_id=${egame.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li sec:authorize="hasRole('ADMIN')" class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarModifyData" data-bs-toggle="dropdown" aria-expanded="false">
+							Modify Data
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarModifyData">
+							<li>
+								<a class="dropdown-item" th:text="'Add game'" th:href="@{/addGame}"></a>
+							</li>
+							<li>
+								<a class="dropdown-item" th:text="'Add custom ranking'" th:href="@{/addRanking}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navBarCustomRanking" data-bs-toggle="dropdown" aria-expanded="false">
+							Custom Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navBarCustomRanking">
+							<li th:each="ranking : ${rankings}">
+								<a class="dropdown-item" th:text="${ranking.name}" th:href="@{/customRanking(ranking_id=${ranking.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="nav-item active">
+						<form method="post" th:action="@{/logout}">
+							<input type="submit" value="Logout" class="nav-link btn btn-info" />
+						</form>
+					</li>
+
+					<li class="nav-item active">
+						<a class="nav-link" th:text="'(logged as ' + ${#authentication.name} + ')'" th:href="'#'">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-10 mt-5 mb-5">
+				<form action="#" th:action="@{/saveRanking}" th:object="${new_ranking}" method="post">
+					<table class="table table-bordered table-striped">
+						<tr>
+							<td><label th:text="'Name'"></label></td>
+							<td><input class="form-control" type="text" th:field="*{name}"/></td>
+						</tr>
+
+						<tr>
+							<td><label th:text="'Game'"></label></td>
+							<td>
+								<select class="form-control" th:field="*{game}">
+									<option th:each="gameOpt : ${games}"
+									        th:value="${gameOpt.id}" th:text="${gameOpt.name}"></option>
+								</select>
+							</td>
+						</tr>
+
+						<tr>
+							<td><label th:text="'Stat 1'"></label></td>
+							<td>
+								<select class="form-control" th:field="*{stat1}">
+									<option th:each="statOpt : ${T(com.mimuw.games.entity.ranking.utils.Stat).values()}"
+									        th:value="${statOpt}" th:text="${statOpt.displayValue}"
+									        th:selected="${statOpt == statOpt.None}"></option>
+								</select>
+							</td>
+						</tr>
+
+						<tr>
+							<td><label th:text="'Stat 2'"></label></td>
+							<td>
+								<select class="form-control" th:field="*{stat2}">
+									<option th:each="statOpt : ${T(com.mimuw.games.entity.ranking.utils.Stat).values()}"
+									        th:value="${statOpt}" th:text="${statOpt.displayValue}"
+									        th:selected="${statOpt == statOpt.None}"></option>
+								</select>
+							</td>
+						</tr>
+
+						<tr>
+							<td><label th:text="'Stat 3'"></label></td>
+							<td>
+								<select class="form-control" th:field="*{stat3}">
+									<option th:each="statOpt : ${T(com.mimuw.games.entity.ranking.utils.Stat).values()}"
+									        th:value="${statOpt}" th:text="${statOpt.displayValue}"
+									        th:selected="${statOpt == statOpt.None}"></option>
+								</select>
+							</td>
+						</tr>
+					</table>
+
+					<button class="btn btn-primary btn-lg" type="submit">Save</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/webjars/popper.js/1.12.9-1/umd/popper.min.js}"></script>
+	<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.js"></script>
+	<script th:src="@{/static/js/jquery-helper.js}"></script>
+</body>
+</html>

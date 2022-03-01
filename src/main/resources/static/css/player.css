@@ -1,0 +1,30 @@
+.hidden {
+    display: none;
+}
+
+.match-history-cell {
+    text-align: center;
+}
+
+.rank-emblem {
+    width: 45%;
+}
+
+.info {
+    width: 55%;
+    text-align: center;
+}
+
+.tier-info {
+    font-weight: bold;
+    color: cornflowerblue;
+}
+
+.points {
+    font-weight: bolder;
+}
+
+.win-lose {
+    font-weight: light;
+    color: darkgrey;
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Player info</title>
+
+	<link rel="stylesheet"
+	      type="text/css"
+	      href="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.css" />
+	<link th:rel="stylesheet" th:href="@{webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+	<link th:type="'text/css'" th:rel="stylesheet" th:href="@{/static/css/player.css}">
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/player(player_id=${player.id})}" th:text="${player.nickname} + ' profile'"></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+			        aria-controls="navbarResponsive"
+			        aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarResponsive">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active active">
+						<a class="nav-link" th:text="'Home'" th:href="@{/ranking}">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+					
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" 
+						   data-bs-toggle="dropdown" aria-expanded="false">
+							Game Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+							<li th:each="egame : ${games}">
+								<a class="dropdown-item" th:text="${egame.name} + ' ranking'" 
+								   th:href="@{/ranking(game_id=${egame.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li sec:authorize="hasRole('ADMIN')" class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarModifyData" data-bs-toggle="dropdown" aria-expanded="false">
+							Modify Data
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarModifyData">
+							<li>
+								<a class="dropdown-item" th:text="'Add game'" th:href="@{/addGame}"></a>
+							</li>
+							<li>
+								<a class="dropdown-item" th:text="'Add custom ranking'" th:href="@{/addRanking}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navBarCustomRanking" data-bs-toggle="dropdown" aria-expanded="false">
+							Custom Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navBarCustomRanking">
+							<li th:each="ranking : ${rankings}">
+								<a class="dropdown-item" th:text="${ranking.name}" th:href="@{/customRanking(ranking_id=${ranking.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="nav-item active">
+						<a th:if="${#authentication.name} == ${player.nickname}" class="nav-link btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete your account?'))) return false;"
+						   th:text="'Delete account'" th:href="@{/deletePlayer(player_id=${player.id})}">
+						</a>
+					</li>
+
+					<li class="nav-item active">
+						<form method="post" th:action="@{/logout}">
+							<input type="submit" value="Logout" class="nav-link btn btn-info" />
+						</form>
+					</li>
+
+					<li class="nav-item active">
+						<a class="nav-link" th:text="'(logged as ' + ${#authentication.name} + ')'" th:href="'#'">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	
+	<div class="container-fluid">
+		<div class="row">
+			
+			<div class="containter" style="margin-left: 400px; margin-top: 120px; margin-right: 0">
+				<div class="col-lg-12 pr-0 pt-2">
+
+					<select id="rank-select" class="custom-select-lg bg-light" style="width: 100%;">
+						<option th:each="rank : ${player.ranks}" th:selected="${rank.key.id == 1}" style="text-align: center;" th:classappend="${rank.key.id == 1 ? 'bg-info' : ''}" 
+						        th:value="'rank-option' + ${rank.key.id}" th:text="${rank.key.name} + ' rank'"></option>
+					</select>
+
+					<div th:each="rank : ${player.ranks}" style="width: 18rem; margin-top: 2px" 
+					     class="container-fluid card bg-light" th:id="'rank-option' + ${rank.key.id}" 
+					     th:classappend="|${rank.key.id != 1 ? 'hidden' : ''} ${rank.key.id == 1 ? 'vis' : ''}|">
+						
+						<div class="row">
+							<div class="rank-emblem" style="padding-left: 20px">
+								<img th:src="${rank.value.getImageUrl()}"
+								     style="width: 110px; height: 110px; margin-right: 0;" alt="Rank emblem">
+							</div>
+							<div class="info">
+								<div class="game-info" th:text="${rank.key.name}"></div>
+								<div class="tier-info" th:text="${rank.value.value}"></div>
+								<div class="general-info">
+									<span class="points" th:text="${rank.value.points} + ' P'"></span>
+									/
+									<span class="win-lose" th:text="${rank.value.wins} + 'W ' + ${rank.value.played - rank.value.wins} + 'L'"></span>
+									<br>
+									<span class="win-lose" th:text="'Win ratio: ' + ${rank.value.getWinRatio()} + '%'"></span>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+
+			<div class="container" style="margin-left: 0; width: 1200px;">
+				<div class="row">
+					<div class="col-md-8 mt-5 mb-5">
+						<table id="gameHistory" class="table table-sm table-bordered table-striped" style="width: 100%">
+							<thead>
+								<tr>
+									<th>Game</th>
+									<th>Duration</th>
+									<th>Date</th>
+									<th>Relative Time</th>
+									<th>Performances</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr th:each="match : ${matches}">
+									<td class="match-history-cell align-middle">
+										<a th:href="@{/ranking(game_id=${match.game.id})}" th:text="${match.game.name}"></a>
+									</td>
+									<td class="match-history-cell align-middle" th:text="${match.duration} + ' minutes'"></td>
+									<td class="match-history-cell align-middle" th:text="${match.getDateNoSecondsAndMillis()}"></td>
+									<td class="match-history-cell align-middle" th:text="${match.timeAgo()}"></td>
+									<td>
+										<div class="container">
+											<table class="table table-sm table-bordered table-striped" style="width: 100%">
+												<thead>
+												<tr class="table-light">
+													<th>Player</th>
+													<th>Score</th>
+													<th>Position</th>
+												</tr>
+												</thead>
+	
+												<tbody>
+													<a href="javascript:void(0)" th:class="'but-show' + ${match.id}" 
+													   th:if="${match.performances.size() > 2}"
+													   th:text="'Show all'" th:attr="onclick=|showAll(${match.id})|"></a>
+													
+													<a href="javascript:void(0)" th:class="'hidden but-hide' + ${match.id}"
+													   th:if="${match.performances.size() > 2}" th:text="'Hide'" 
+													   th:attr="onclick=|hideRest(${match.id})|"></a>
+		
+													<tr th:each="perf : ${match.performances}" 
+													    th:classappend="${perf.position > 2 ? 'hidden perf-row' + match.id : ''}">
+														
+														<td th:classappend="${perf.player.id == player.id ? 'table-primary' : ''}">
+															<a th:href="@{/player(player_id=${perf.player.id})}" 
+															   th:text="${perf.player.nickname}"></a>
+														</td>
+														<td th:text="${perf.score}"></td>
+														<td th:text="${perf.position}"></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+		
+	
+	<script th:src="@{/webjars/popper.js/1.12.9-1/umd/popper.min.js}"></script>
+	<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.js"></script>
+	<script th:src="@{/static/js/player.js}"></script>
+	<script th:src="@{/static/js/jquery-helper.js}"></script>
+</body>
+</html>

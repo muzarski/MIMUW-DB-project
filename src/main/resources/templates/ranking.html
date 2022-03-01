@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Ranking</title>
+	
+	<link rel="stylesheet"
+	      type="text/css"
+	      href="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.css" />
+	<link th:rel="stylesheet" th:href="@{webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} "/>
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+		<div class="container">
+			<a class="navbar-brand" href="/" th:text="${game.name} + ' ranking'"></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+			        aria-controls="navbarResponsive"
+			        aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarResponsive">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active">
+						<a class="nav-link" th:text="'Home'" th:href="@{/ranking}">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+					
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+							Game Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+							<li th:each="egame : ${games}">
+								<a class="dropdown-item" th:text="${egame.name} + ' ranking'" th:href="@{/ranking(game_id=${egame.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li sec:authorize="hasRole('ADMIN')" class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navbarModifyData" data-bs-toggle="dropdown" aria-expanded="false">
+							Modify Data
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark active" aria-labelledby="navbarModifyData">
+							<li>
+								<a class="dropdown-item" th:text="'Add game'" th:href="@{/addGame}"></a>
+							</li>
+							<li>
+								<a class="dropdown-item" th:text="'Add custom ranking'" th:href="@{/addRanking}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="nav-item dropdown active">
+						<a class="nav-link btn btn-dark dropdown-toggle" href="#" id="navBarCustomRanking" data-bs-toggle="dropdown" aria-expanded="false">
+							Custom Rankings
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navBarCustomRanking">
+							<li th:each="ranking : ${rankings}">
+								<a class="dropdown-item" th:text="${ranking.name}" th:href="@{/customRanking(ranking_id=${ranking.id})}"></a>
+							</li>
+						</ul>
+					</li>
+
+					<li sec:authorize="hasRole('ADMIN')" class="nav-item active">
+						<a class="nav-link btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this game?'))) return false;"
+						   th:unless="${game.id == 1}" th:text="'Delete game'" th:href="@{/deleteGame(game_id=${game.id})}">
+						</a>
+					</li>
+
+					<li class="nav-item active">
+						<form method="post" th:action="@{/logout}">
+							<input type="submit" value="Logout" class="nav-link btn btn-info" />
+						</form>
+					</li>
+
+					<li class="nav-item active">
+						<a class="nav-link" th:text="'(logged as ' + ${#authentication.name} + ')'" th:href="'#'">
+							<span class="sr-only">(current)</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-10 mt-5 mb-5">
+				<table id="ranking-table" class="table table-bordered table-striped" style="width: 100%">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Nickname</th>
+							<th>Points</th>
+							<th>Rank</th>
+							<th>Wins</th>
+							<th>Matches played</th>
+							<th>Winratio</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr th:each="rank,iter : ${ranks}">
+							<td th:text="${iter.index + 1}"></td>
+							<td><a th:href="@{/player(player_id=${rank.player.id})}" th:text="${rank.player.nickname}"></a></td>
+							<td th:text="${rank.points}"></td>
+							<td th:text="${rank.value}"></td>
+							<td th:text="${rank.wins}"></td>
+							<td th:text="${rank.played}"></td>
+							<td th:text="${rank.getWinRatio()} + '%'"></td>
+						</tr>
+					</tbody>
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/webjars/popper.js/1.12.9-1/umd/popper.min.js}"></script>
+	<script th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>
+	<script th:src="@{/webjars/bootstrap/4.0.0-2/js/bootstrap.min.js}"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.25/datatables.min.js"></script>
+	<script th:src="@{/static/js/jquery-helper.js}"></script>
+
+	<script>
+        $(document).ready(function() {
+            $("#ranking-table").DataTable({
+            });
+        })
+	</script>
+
+</body>
+</html>
